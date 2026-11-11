@@ -92,7 +92,7 @@ page = f"""<!DOCTYPE html>
   <h2>כל {d["total"]} התשובות</h2>
   <ol class="responses">{response_items}</ol>
 
-  <footer>נבדק מול הטופס לאחרונה ב־{e(d["checked"])}. הדף מתעדכן אוטומטית כשיש שינוי; הקישור נשאר קבוע.</footer>
+  <footer>נבדק מול הטופס לאחרונה ב־{e(d["checked"])}. הדף מתעדכן אוטומטית כשיש שינוי; הקישור נשאר קבוע.<br><a href="assign/" style="display:inline-block;margin-top:10px;padding:8px 18px;background:#2e5c9e;color:#fff;border-radius:999px;text-decoration:none;font-size:.9rem;">לשיבוץ המשותף לועדות ←</a></footer>
 </main>
 </body>
 </html>
