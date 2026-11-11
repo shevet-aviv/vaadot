@@ -83,7 +83,7 @@ const SUPABASE_KEY = "sb_publishable_MjfHQCwVKHGnAyO2ihv3Gw_wIZ6pgZ5";
 const supa = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 const COMMITTEES = ["לוגיסטיקה","הפעלה במסלול","אוכל","ערב חברתי","צופרים","תיעוד"];
-const PEOPLE = [
+const PEOPLE_FALLBACK = [
   {name:"עלמה אוריין", grade:"י׳", picks:["הפעלה במסלול"], heads:[]},
   {name:"אמילי חי", grade:"י׳", picks:["אוכל"], heads:[]},
   {name:"נועם זוהר", grade:"י״א", picks:["אוכל","לוגיסטיקה"], heads:[]},
@@ -206,9 +206,33 @@ function renderPeople() {
   }));
 }
 
-renderPeople();
-renderSummary();
-fetchState().then(() => setBar("השיבוץ נטען ✓"));
+let PEOPLE = PEOPLE_FALLBACK;
+
+async function loadPeople() {
+  try {
+    const res = await fetch("../data.json", { cache: "no-store" });
+    if (!res.ok) throw new Error("http " + res.status);
+    const d = await res.json();
+    if (Array.isArray(d.responses) && d.responses.length) {
+      PEOPLE = d.responses.map(r => ({
+        name: r[0],
+        grade: r[1],
+        picks: r[2] ? r[2].split(",").map(x => x.trim()).filter(Boolean) : [],
+        heads: r[3] ? r[3].split(",").map(x => x.trim()).filter(Boolean) : []
+      }));
+    }
+  } catch (e) {
+    // fall back to the snapshot embedded in this page
+  }
+}
+
+async function boot() {
+  await loadPeople();
+  renderPeople();
+  renderSummary();
+  fetchState().then(() => setBar("השיבוץ נטען ✓"));
+}
+boot();
 
 supa.channel("assignments-live")
   .on("postgres_changes", { event: "*", schema: "public", table: "assignments" }, () => scheduleRefetch(250))
